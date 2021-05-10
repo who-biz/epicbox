@@ -4,7 +4,8 @@ mod grinbox_request;
 mod grinbox_response;
 mod tx_proof;
 
-pub use grin_wallet::libwallet::slate::Slate;
+//pub use epic_wallet::libwallet::slate::Slate;
+pub use epic_wallet_libwallet::slate::Slate;
 pub use parking_lot::{Mutex, MutexGuard};
 pub use std::sync::Arc;
 

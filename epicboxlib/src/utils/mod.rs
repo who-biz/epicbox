@@ -1,7 +1,7 @@
 use std::fmt::Write;
 use crate::error::{Result, ErrorKind};
 
-pub use grin_core::global::is_mainnet;
+pub use epic_core::global::is_mainnet;
 
 pub mod base58;
 pub mod crypto;
@@ -38,4 +38,3 @@ fn split_n(s: &str, n: usize) -> Vec<&str> {
         .map(|i| &s[2 * i..2 * i + n])
         .collect()
 }
-

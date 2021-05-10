@@ -9,10 +9,10 @@ use uuid::Uuid;
 
 use ws::{CloseCode, Handler, Handshake, Message, Request, Response, Result as WsResult, Sender, connect};
 
-use grinboxlib::error::{ErrorKind, Result};
-use grinboxlib::types::{GrinboxAddress, GrinboxError, GrinboxRequest, GrinboxResponse};
-use grinboxlib::utils::crypto::{verify_signature, Base58, Hex};
-use grinboxlib::utils::secp::{PublicKey, Signature};
+use epicboxlib::error::{ErrorKind, Result};
+use epicboxlib::types::{GrinboxAddress, GrinboxError, GrinboxRequest, GrinboxResponse};
+use epicboxlib::utils::crypto::{verify_signature, Base58, Hex};
+use epicboxlib::utils::secp::{PublicKey, Signature};
 
 use crate::broker::{BrokerRequest, BrokerResponse};
 

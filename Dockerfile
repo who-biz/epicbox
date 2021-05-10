@@ -18,7 +18,7 @@ WORKDIR /grinbox
 # copy over your manifests
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
-COPY ./grinboxlib ./grinboxlib
+COPY ./epicboxlib ./epicboxlib
 
 # this build step will cache your dependencies
 RUN cargo build --release

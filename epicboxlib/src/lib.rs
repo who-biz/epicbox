@@ -12,7 +12,7 @@ extern crate serde_json;
 extern crate sha2;
 extern crate ws;
 
-extern crate grin_core;
+extern crate epic_core;
 
 pub mod client;
 pub mod error;
