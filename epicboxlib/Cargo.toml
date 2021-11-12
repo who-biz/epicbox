@@ -2,8 +2,8 @@
 name = "epicboxlib"
 version = "1.0.1"
 authors = ["vault713 devs"]
-description = "A library that encapsulates grinbox integration."
-keywords = [ "epicbox", "vault713", "grin", "mimblewimble", "rust", "crypto", "cryptocurrency", "wallet713" ]
+description = "A library that encapsulates epicbox integration."
+keywords = [ "epicbox", "vault713", "epic", "mimblewimble", "rust", "crypto", "cryptocurrency", "wallet713" ]
 license = "Apache-2.0"
 readme = "README.md"
 edition = "2018"
@@ -23,8 +23,6 @@ sha2 = "0.7"
 ws = { version="0.7", features=["ssl"] }
 
 grin_secp256k1zkp = { version = "0.7.4", features = ["bullet-proof-sizing"]}
-#epic_core = { git = "https://github.com/epiccash/epic" }
-epic_core     = { git = "https://github.com/EpicCash/epic", rev = "3.0.0-alpha-6" }
-#epic_wallet = { git = "https://github.com/epiccsh/grin" }
-epic_wallet_libwallet = { git = "https://github.com/EpicCash/epic-wallet" , rev = "3.0.0-alpha-3" }
-#epic_wallet_libwallet     = { git = "https://github.com/EpicCash/epic", rev = "develop" }
+
+epic_core     = { git = "https://github.com/EpicCash/epic", branch = "3.0.0" }
+epic_wallet_libwallet = { git = "https://github.com/EpicCash/epic-wallet" , branch = "3.0.0" }

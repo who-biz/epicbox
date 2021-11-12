@@ -1,8 +1,8 @@
-# Grinbox Integration Guide
+# Epicbox Integration Guide
 
 ## Introduction
 
-Grinbox is a relay service and protocol for slate exchange between anonymous parties for building grin transactions.
+Epicbox is a relay service and protocol for slate exchange between anonymous parties for building epic transactions.
 
 ### Data & Privacy
 
@@ -18,44 +18,44 @@ if rust is already installed, you can simply update version with rustup update
 ### Environment Variables
 
 * `BROKER_URI`: The rabbitmq broker URI in the form of (i.e. domain:port). defaults to 127.0.0.1:5672
-* `RABBITMQ_DEFAULT_USER`: The username with which grinbox would establish connection to the rabbit broker.
+* `RABBITMQ_DEFAULT_USER`: The username with which epicbox would establish connection to the rabbit broker.
 * `RABBITMQ_DEFAULT_PASS`: The associated password to use
 * `BIND_ADDRESS`: The http listener bind address (defaults to 0.0.0.0:3420)
 
 ### Installation
 
 ```
-$ git clone https://github.com/vault713/grinbox
-$ cd grinbox
+$ git clone https://github.com/EpicCash/epicbox
+$ cd epicbox
 $ cargo build --release
 ```
 And then to run:
 ```
 $ cd target/release
-$ ./grinbox
-``` 
+$ ./epicbox
+```
 
-Once grinbox is running it should establish connection with the rabbitmq broker and start to listen to incoming connection on the bind address.
+Once epicbox is running it should establish connection with the rabbitmq broker and start to listen to incoming connection on the bind address.
 
 ## Integration
 
-The following section covers integration requirements for client that want to communicate with a grinbox relay.
+The following section covers integration requirements for client that want to communicate with a epicbox relay.
 
-### Create Grinbox addresses
+### Create Epicbox addresses
 
-In order to be able to use grinbox, client must have a valid `grinbox address`.
+In order to be able to use epicbox, client must have a valid `epicbox address`.
 
-#### Grinbox address format
+#### Epicbox address format
 
-A grinbox address is composed of 4 components:
-1. Scheme = "grinbox" [optional, can be omitted]
+A epicbox address is composed of 4 components:
+1. Scheme = "epicbox" [optional, can be omitted]
 2. A base58-check encoded secp256k1 public key (with 2 version bytes)
-3. Relay Domain [optional, defaults to `grinbox.io`]
+3. Relay Domain [optional, defaults to `epicbox.epic.tech`]
 4. Relay Port number [optional, defaults to 443]
 
 ```
 Note that mainnet and testnet use different version bytes to clearly differentiate real vs. test address:
-Mainnet version bytes: [1, 11] which generate addresses starting with a `g` in the public key component
+Mainnet version bytes: [1, 11] which generate addresses starting with a `e` in the public key component
 Testnet version bytes: [1, 120] which generate addresses starting with an `x` in the public key component
 ```
 
@@ -63,32 +63,32 @@ Examples of valid addresses for testnet:
 
 ```
 xd8dyGUuP89t2TT9N9yU7pZsr6VyJAH6wZauESBQe67q741bVoaN
-grinbox://xd95u2toAVHE85BCHTi2tqddL6po3g4JVv8fFXVJGUTuMYKn6Bhp
-grinbox://xd9XfKTUCGr6iwzuDKyfN8N3EXd19z4kinCWTJyK5LMzdvoY9AZs@example.com
-grinbox://xd8EBsMXfYKyDJUiXYURNXJZ5e66hTJWweeYKgjPxwqXYEgkt8SE@example.com:13420
+epicbox://xd95u2toAVHE85BCHTi2tqddL6po3g4JVv8fFXVJGUTuMYKn6Bhp
+epicbox://xd9XfKTUCGr6iwzuDKyfN8N3EXd19z4kinCWTJyK5LMzdvoY9AZs@example.com
+epicbox://xd8EBsMXfYKyDJUiXYURNXJZ5e66hTJWweeYKgjPxwqXYEgkt8SE@example.com:13420
 ```
 Examples of valid addresses for mainnet:
 
 ```
-gVuQ7cspvtjKZNBuoxyjrLbNTXhqKt7Hd3MnjfMBr3kSE6z3XkCp
-grinbox://gVv3oFZofJYFtRQKcab1xwhu3dAZ2EfqfuoxnwYoXL7VU7Tr8Ch2
-grinbox://gVwJ8hXkKyeGMsXgK38URgn5vYeuWRXrBzHGrgM7YcjifJEj52J6@example.com
-grinbox://gVuyUw615UYnrUrMc19r8KfaECkrp1UzTT1HUxnXpaUebAGb9Y3s@example.com:13420
+eVuQ7cspvtjKZNBuoxyjrLbNTXhqKt7Hd3MnjfMBr3kSE6z3XkCp
+epicbox://eVv3oFZofJYFtRQKcab1xwhu3dAZ2EfqfuoxnwYoXL7VU7Tr8Ch2
+epicbox://eVwJ8hXkKyeGMsXgK38URgn5vYeuWRXrBzHGrgM7YcjifJEj52J6@example.com
+epicbox://eVuyUw615UYnrUrMc19r8KfaECkrp1UzTT1HUxnXpaUebAGb9Y3s@example.com:13420
 ```
 
-### Connect to grinbox
+### Connect to epicbox
 
-Client communication with the grinbox service is done via websockets, utilizing a json-based protocol, where the client issues json-encoded requests to the server via the websocket, and gets json-encoded responses. Connection to grinbox can be done by any client supportive of RFC6455 websocket protocol, while actual communication with the server involves a custom set of json-encoded messages.
+Client communication with the epicbox service is done via websockets, utilizing a json-based protocol, where the client issues json-encoded requests to the server via the websocket, and gets json-encoded responses. Connection to epicbox can be done by any client supportive of RFC6455 websocket protocol, while actual communication with the server involves a custom set of json-encoded messages.
 
 Each message is a json object with a `type` attribute that designates the type of message it is, and optional additional attributes depending on the message type.
 
-#### Grinbox Protocol
+#### Epicbox Protocol
 
 ##### Challenge
 
-Grinbox uses a rolling challenge provided by the server for authenticating ownership of a grinbox address. When clients interact with grinbox to post slates and to get pending slates, they have to assert ownership of their address. They do this by signing the challenge with the private key associated with the address in question.
+Epicbox uses a rolling challenge provided by the server for authenticating ownership of a epicbox address. When clients interact with epicbox to post slates and to get pending slates, they have to assert ownership of their address. They do this by signing the challenge with the private key associated with the address in question.
 
-Upon successful connection to grinbox, the server sends the current challenge to the user in the context of a `Challenge` message.
+Upon successful connection to epicbox, the server sends the current challenge to the user in the context of a `Challenge` message.
 
 ```
 {
@@ -110,10 +110,10 @@ To generate the signature, the slate sender has to sign a the challenge composed
 ###### Request:
 
 ```
-{ 
-	"type": "PostSlate", 
-	"from": "<grinbox address of slate sender>", 
-	"to": "<grinbox address of slate receiver>", 
+{
+	"type": "PostSlate",
+	"from": "<epicbox address of slate sender>",
+	"to": "<epicbox address of slate receiver>",
 	"str": "<slate encrypted using public key of receiver>",
 	"signature": "<signature for str + current challenge using the from address private key>"
 }
@@ -136,7 +136,7 @@ Once subscription is established successfully, the server would send any pending
 ```
 {
 	"type": "Subscribe",
-	"address": "<the grinbox address>",
+	"address": "<the epicbox address>",
 	"signature": "<the current challenge signed with the private key of the `address`>"
 }
 ```
@@ -156,7 +156,7 @@ Error Response: `{ "type": "Error", "kind": "<error kind>", "description": "<des
 ```
 {
 	"type": "Unsubscribe",
-	"address": "<the grinbox address>",
+	"address": "<the epicbox address>",
 }
 ```
 

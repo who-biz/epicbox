@@ -7,7 +7,9 @@ extern crate env_logger;
 extern crate failure;
 #[macro_use]
 extern crate futures;
+extern crate bytes;
 extern crate nitox;
+extern crate nom;
 extern crate serde_json;
 extern crate tokio;
 extern crate tokio_codec;
@@ -15,8 +17,6 @@ extern crate tokio_core;
 extern crate tokio_io;
 extern crate tokio_timer;
 extern crate unicode_segmentation;
-extern crate bytes;
-extern crate nom;
 extern crate uuid;
 extern crate ws;
 
@@ -43,10 +43,12 @@ fn main() {
     let username = std::env::var("BROKER_USERNAME").unwrap_or("guest".to_string());
     let password = std::env::var("BROKER_PASSWORD").unwrap_or("guest".to_string());
 
-    let grinbox_domain = std::env::var("GRINBOX_DOMAIN").unwrap_or("127.0.0.1".to_string());
-    let grinbox_port = std::env::var("GRINBOX_PORT").unwrap_or("13420".to_string());
-    let grinbox_port = u16::from_str_radix(&grinbox_port, 10).expect("invalid GRINBOX_PORT given!");
-    let grinbox_protocol_unsecure = std::env::var("GRINBOX_PROTOCOL_UNSECURE").map(|_| true).unwrap_or(false);
+    let epicbox_domain = std::env::var("EPICBOX_DOMAIN").unwrap_or("127.0.0.1".to_string());
+    let epicbox_port = std::env::var("EPICBOX_PORT").unwrap_or("13420".to_string());
+    let epicbox_port = u16::from_str_radix(&epicbox_port, 10).expect("invalid EPICBOX_PORT given!");
+    let epicbox_protocol_unsecure = std::env::var("EPICBOX_PROTOCOL_UNSECURE")
+        .map(|_| true)
+        .unwrap_or(false);
 
     if broker_uri.is_none() {
         error!("could not resolve broker uri!");
@@ -66,7 +68,16 @@ fn main() {
     let response_handlers_sender = AsyncServer::init();
 
     ws::Builder::new()
-        .build(|out| AsyncServer::new(out, sender.clone(), response_handlers_sender.clone(), &grinbox_domain, grinbox_port, grinbox_protocol_unsecure))
+        .build(|out| {
+            AsyncServer::new(
+                out,
+                sender.clone(),
+                response_handlers_sender.clone(),
+                &epicbox_domain,
+                epicbox_port,
+                epicbox_protocol_unsecure,
+            )
+        })
         .unwrap()
         .listen(&bind_address[..])
         .unwrap();

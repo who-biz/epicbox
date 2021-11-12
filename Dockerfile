@@ -12,8 +12,8 @@ RUN set -ex && \
     git
 
 # create a new empty shell project
-RUN USER=root cargo new --bin grinbox
-WORKDIR /grinbox
+RUN USER=root cargo new --bin epicbox
+WORKDIR /epicbox
 
 # copy over your manifests
 COPY ./Cargo.lock ./Cargo.lock
@@ -28,7 +28,7 @@ RUN rm src/*.rs
 COPY ./src ./src
 
 # build for release
-RUN rm ./target/release/deps/grinbox*
+RUN rm ./target/release/deps/epicbox*
 RUN cargo build --release
 
 # runtime stage
@@ -42,13 +42,13 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 ENV LANG en_US.UTF-8
 
-RUN adduser --disabled-login --home /grinbox --gecos "" grinbox
+RUN adduser --disabled-login --home /epicbox --gecos "" epicbox
 
-USER grinbox
+USER epicbox
 
-COPY --from=builder ./grinbox/target/release/grinbox /grinbox/grinbox
+COPY --from=builder ./epicbox/target/release/epicbox /epicbox/epicbox
 
-WORKDIR /grinbox
+WORKDIR /epicbox
 
 COPY ./start.sh ./start.sh
 

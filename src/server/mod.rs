@@ -10,7 +10,7 @@ use uuid::Uuid;
 use ws::{CloseCode, Handler, Handshake, Message, Request, Response, Result as WsResult, Sender, connect};
 
 use epicboxlib::error::{ErrorKind, Result};
-use epicboxlib::types::{GrinboxAddress, GrinboxError, GrinboxRequest, GrinboxResponse};
+use epicboxlib::types::{EpicboxAddress, EpicboxError, EpicboxRequest, EpicboxResponse};
 use epicboxlib::utils::crypto::{verify_signature, Base58, Hex};
 use epicboxlib::utils::secp::{PublicKey, Signature};
 
@@ -29,9 +29,9 @@ pub struct AsyncServer {
     nats_sender: UnboundedSender<BrokerRequest>,
     response_handlers_sender: UnboundedSender<BrokerResponseHandler>,
     subscriptions: HashMap<String, Subscription>,
-    grinbox_domain: String,
-    grinbox_port: u16,
-    grinbox_protocol_unsecure: bool,
+    epicbox_domain: String,
+    epicbox_port: u16,
+    epicbox_protocol_unsecure: bool,
 }
 
 pub struct Server {
@@ -69,9 +69,9 @@ impl AsyncServer {
         out: Sender,
         nats_sender: UnboundedSender<BrokerRequest>,
         response_handlers_sender: UnboundedSender<BrokerResponseHandler>,
-        grinbox_domain: &str,
-        grinbox_port: u16,
-        grinbox_protocol_unsecure: bool,
+        epicbox_domain: &str,
+        epicbox_port: u16,
+        epicbox_protocol_unsecure: bool,
     ) -> AsyncServer {
         let id = Uuid::new_v4().to_string();
 
@@ -86,9 +86,9 @@ impl AsyncServer {
             nats_sender,
             response_handlers_sender,
             subscriptions: HashMap::new(),
-            grinbox_domain: grinbox_domain.to_string(),
-            grinbox_port,
-            grinbox_protocol_unsecure,
+            epicbox_domain: epicbox_domain.to_string(),
+            epicbox_port,
+            epicbox_protocol_unsecure,
         }
     }
 
@@ -111,7 +111,7 @@ impl AsyncServer {
                                     serde_json::from_str::<SignedPayload>(&payload);
                                 if signed_payload.is_ok() {
                                     let signed_payload = signed_payload.unwrap();
-                                    let response = GrinboxResponse::Slate {
+                                    let response = EpicboxResponse::Slate {
                                         from: reply_to,
                                         str: signed_payload.str,
                                         challenge: signed_payload.challenge,
@@ -151,21 +151,21 @@ impl AsyncServer {
         fut_tx
     }
 
-    fn error(kind: GrinboxError) -> GrinboxResponse {
+    fn error(kind: EpicboxError) -> EpicboxResponse {
         let description = format!("{}", kind);
-        GrinboxResponse::Error { kind, description }
+        EpicboxResponse::Error { kind, description }
     }
 
-    fn ok() -> GrinboxResponse {
-        GrinboxResponse::Ok
+    fn ok() -> EpicboxResponse {
+        EpicboxResponse::Ok
     }
 
     fn get_challenge_raw(&self) -> &str {
         "7WUDtkSaKyGRUnQ22rE3QUXChV8DmA6NnunDYP4vheTpc"
     }
 
-    fn get_challenge(&self) -> GrinboxResponse {
-        GrinboxResponse::Challenge {
+    fn get_challenge(&self) -> EpicboxResponse {
+        EpicboxResponse::Challenge {
             str: String::from(self.get_challenge_raw()),
         }
     }
@@ -174,16 +174,16 @@ impl AsyncServer {
         let (public_key, _) = PublicKey::from_base58_check_raw(public_key, 2)?;
         let signature = Signature::from_hex(signature)?;
         verify_signature(challenge, &signature, &public_key)
-            .map_err(|_| ErrorKind::GrinboxProtocolError(GrinboxError::InvalidSignature))?;
+            .map_err(|_| ErrorKind::EpicboxProtocolError(EpicboxError::InvalidSignature))?;
         Ok(())
     }
 
-    fn subscribe(&mut self, address: String, signature: String) -> GrinboxResponse {
+    fn subscribe(&mut self, address: String, signature: String) -> EpicboxResponse {
         let result = self.verify_signature(&address, self.get_challenge_raw(), &signature);
         match result {
             Ok(()) => {
                 if self.subscriptions.len() == MAX_SUBSCRIPTIONS {
-                    AsyncServer::error(GrinboxError::TooManySubscriptions)
+                    AsyncServer::error(EpicboxError::TooManySubscriptions)
                 } else {
                     let (res_tx, res_rx) = unbounded::<BrokerResponse>();
                     if self
@@ -196,7 +196,7 @@ impl AsyncServer {
                         .is_err()
                     {
                         error!("could not issue subscribe request!");
-                        return AsyncServer::error(GrinboxError::UnknownError);
+                        return AsyncServer::error(EpicboxError::UnknownError);
                     };
 
                     if self
@@ -208,7 +208,7 @@ impl AsyncServer {
                         .is_err()
                     {
                         error!("could not register subscription handler!");
-                        return AsyncServer::error(GrinboxError::UnknownError);
+                        return AsyncServer::error(EpicboxError::UnknownError);
                     };
 
                     self.subscriptions.insert(address.clone(), Subscription {});
@@ -216,11 +216,11 @@ impl AsyncServer {
                     AsyncServer::ok()
                 }
             }
-            Err(_) => AsyncServer::error(GrinboxError::UnknownError),
+            Err(_) => AsyncServer::error(EpicboxError::UnknownError),
         }
     }
 
-    fn unsubscribe(&mut self, address: String) -> GrinboxResponse {
+    fn unsubscribe(&mut self, address: String) -> EpicboxResponse {
         let result = self.subscriptions.remove(&address);
         match result {
             Some(_subscription) => {
@@ -232,12 +232,12 @@ impl AsyncServer {
                     .is_err()
                 {
                     error!("could not unsubscribe!");
-                    return AsyncServer::error(GrinboxError::UnknownError);
+                    return AsyncServer::error(EpicboxError::UnknownError);
                 };
 
                 AsyncServer::ok()
             }
-            None => AsyncServer::error(GrinboxError::InvalidRequest),
+            None => AsyncServer::error(EpicboxError::InvalidRequest),
         }
     }
 
@@ -248,16 +248,16 @@ impl AsyncServer {
         str: String,
         signature: String,
         message_expiration_in_seconds: Option<u32>,
-    ) -> GrinboxResponse {
-        let from_address = GrinboxAddress::from_str_raw(&from);
+    ) -> EpicboxResponse {
+        let from_address = EpicboxAddress::from_str_raw(&from);
         if from_address.is_err() {
-            return AsyncServer::error(GrinboxError::InvalidRequest);
+            return AsyncServer::error(EpicboxError::InvalidRequest);
         }
         let from_address = from_address.unwrap();
 
-        let to_address = GrinboxAddress::from_str_raw(&to);
+        let to_address = EpicboxAddress::from_str_raw(&to);
         if to_address.is_err() {
-            return AsyncServer::error(GrinboxError::InvalidRequest);
+            return AsyncServer::error(EpicboxError::InvalidRequest);
         }
         let to_address = to_address.unwrap();
 
@@ -275,10 +275,10 @@ impl AsyncServer {
         }
 
         if result.is_err() {
-            return AsyncServer::error(GrinboxError::InvalidSignature);
+            return AsyncServer::error(EpicboxError::InvalidSignature);
         }
 
-        if to_address.port == self.grinbox_port && to_address.domain == self.grinbox_domain {
+        if to_address.port == self.epicbox_port && to_address.domain == self.epicbox_domain {
             let signed_payload = SignedPayload {
                 str,
                 challenge: challenge_raw.to_string(),
@@ -298,7 +298,7 @@ impl AsyncServer {
                 .is_err()
                 {
                     error!("could not post message to broker!");
-                    return AsyncServer::error(GrinboxError::UnknownError);
+                    return AsyncServer::error(EpicboxError::UnknownError);
                 };
 
             AsyncServer::ok()
@@ -307,8 +307,8 @@ impl AsyncServer {
         }
     }
 
-    fn post_slate_federated(&self, from_address: &GrinboxAddress, to_address: &GrinboxAddress, str: String, signature: String, message_expiration_in_seconds: Option<u32>) -> GrinboxResponse {
-        let url = match self.grinbox_protocol_unsecure {
+    fn post_slate_federated(&self, from_address: &EpicboxAddress, to_address: &EpicboxAddress, str: String, signature: String, message_expiration_in_seconds: Option<u32>) -> EpicboxResponse {
+        let url = match self.epicbox_protocol_unsecure {
             false => format!(
                 "wss://{}:{}",
                 to_address.domain,
@@ -327,12 +327,12 @@ impl AsyncServer {
             let str = str.clone();
             let signature = signature.clone();
             move |msg: Message| {
-                let response = serde_json::from_str::<GrinboxResponse>(&msg.to_string())
+                let response = serde_json::from_str::<EpicboxResponse>(&msg.to_string())
                     .expect("could not parse response!");
 
                 match response {
-                    GrinboxResponse::Challenge { str: _ } => {
-                        let request = GrinboxRequest::PostSlate {
+                    EpicboxResponse::Challenge { str: _ } => {
+                        let request = EpicboxRequest::PostSlate {
                             from: from_address.stripped(),
                             to: to_address.stripped(),
                             str: str.clone(),
@@ -344,13 +344,13 @@ impl AsyncServer {
                             .send(serde_json::to_string(&request).unwrap())
                             .unwrap();
                     }
-                    GrinboxResponse::Error {
+                    EpicboxResponse::Error {
                         kind: _,
                         description: _,
                     } => {
                         sender.close(CloseCode::Abnormal).is_ok();
                     }
-                    GrinboxResponse::Ok => {
+                    EpicboxResponse::Ok => {
                         sender.close(CloseCode::Normal).is_ok();
                     }
                     _ => {}
@@ -361,7 +361,7 @@ impl AsyncServer {
 
         match result {
             Ok(()) => AsyncServer::ok(),
-            Err(_) => AsyncServer::error(GrinboxError::UnknownError),
+            Err(_) => AsyncServer::error(EpicboxError::UnknownError),
         }
     }
 }
@@ -404,18 +404,18 @@ impl Handler for AsyncServer {
             let request = request.unwrap();
             info!("[{}] -> {}", self.id.bright_green(), request);
             match request {
-                GrinboxRequest::Challenge => self.get_challenge(),
-                GrinboxRequest::Subscribe { address, signature } => {
+                EpicboxRequest::Challenge => self.get_challenge(),
+                EpicboxRequest::Subscribe { address, signature } => {
                     self.subscribe(address, signature)
                 }
-                GrinboxRequest::PostSlate {
+                EpicboxRequest::PostSlate {
                     from,
                     to,
                     str,
                     signature,
                     message_expiration_in_seconds,
                 } => self.post_slate(from, to, str, signature, message_expiration_in_seconds),
-                GrinboxRequest::Unsubscribe { address } => self.unsubscribe(address),
+                EpicboxRequest::Unsubscribe { address } => self.unsubscribe(address),
             }
         } else {
             debug!(
@@ -423,7 +423,7 @@ impl Handler for AsyncServer {
                 self.id.bright_green(),
                 "invalid request!".bright_red()
             );
-            AsyncServer::error(GrinboxError::InvalidRequest)
+            AsyncServer::error(EpicboxError::InvalidRequest)
         };
 
         info!("[{}] <- {}", self.id.bright_green(), response);

@@ -1,4 +1,4 @@
-use crate::types::{GrinboxAddress, GrinboxMessage, Slate};
+use crate::types::{EpicboxAddress, EpicboxMessage, Slate};
 use crate::utils::secp::{Commitment, SecretKey, Signature};
 use crate::utils::crypto::{Hex, verify_signature};
 
@@ -8,7 +8,7 @@ pub enum ErrorKind {
     ParsePublicKey,
     ParseSignature,
     VerifySignature,
-    ParseGrinboxMessage,
+    ParseEpicboxMessage,
     VerifyDestination,
     DecryptionKey,
     DecryptMessage,
@@ -17,7 +17,7 @@ pub enum ErrorKind {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TxProof {
-    pub address: GrinboxAddress,
+    pub address: EpicboxAddress,
     pub message: String,
     pub challenge: String,
     pub signature: Signature,
@@ -31,8 +31,8 @@ pub struct TxProof {
 impl TxProof {
     pub fn verify_extract(
         &self,
-        expected_destination: Option<&GrinboxAddress>,
-    ) -> Result<(Option<GrinboxAddress>, Slate), ErrorKind> {
+        expected_destination: Option<&EpicboxAddress>,
+    ) -> Result<(Option<EpicboxAddress>, Slate), ErrorKind> {
         let mut challenge = String::new();
         challenge.push_str(self.message.as_str());
         challenge.push_str(self.challenge.as_str());
@@ -45,8 +45,8 @@ impl TxProof {
         verify_signature(&challenge, &self.signature, &public_key)
             .map_err(|_| ErrorKind::VerifySignature)?;
 
-        let encrypted_message: GrinboxMessage =
-            serde_json::from_str(&self.message).map_err(|_| ErrorKind::ParseGrinboxMessage)?;
+        let encrypted_message: EpicboxMessage =
+            serde_json::from_str(&self.message).map_err(|_| ErrorKind::ParseEpicboxMessage)?;
 
         // TODO: at some point, make this check required
         let destination = encrypted_message.destination.clone();
@@ -72,17 +72,17 @@ impl TxProof {
         challenge: String,
         signature: String,
         secret_key: &SecretKey,
-        expected_destination: Option<&GrinboxAddress>,
+        expected_destination: Option<&EpicboxAddress>,
     ) -> Result<(Slate, TxProof), ErrorKind> {
         let address =
-            GrinboxAddress::from_str(from.as_str()).map_err(|_| ErrorKind::ParseAddress)?;
+            EpicboxAddress::from_str(from.as_str()).map_err(|_| ErrorKind::ParseAddress)?;
         let signature =
             Signature::from_hex(signature.as_str()).map_err(|_| ErrorKind::ParseSignature)?;
         let public_key = address
             .public_key()
             .map_err(|_| ErrorKind::ParsePublicKey)?;
-        let encrypted_message: GrinboxMessage =
-            serde_json::from_str(&message).map_err(|_| ErrorKind::ParseGrinboxMessage)?;
+        let encrypted_message: EpicboxMessage =
+            serde_json::from_str(&message).map_err(|_| ErrorKind::ParseEpicboxMessage)?;
         let key = encrypted_message
             .key(&public_key, secret_key)
             .map_err(|_| ErrorKind::DecryptionKey)?;

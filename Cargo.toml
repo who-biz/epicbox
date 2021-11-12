@@ -2,8 +2,8 @@
 name = "epicbox"
 version = "0.1.0"
 authors = ["vault713 devs"]
-description = "A slate relay service for Grin."
-keywords = ["epic", "grin", "mimblewimble", "rust", "crypto", "cryptocurrency", "wallet713", "vault713" ]
+description = "A slate relay service for Epic."
+keywords = ["epic", "mimblewimble", "rust", "crypto", "cryptocurrency", "wallet713", "vault713" ]
 license = "Apache-2.0"
 readme = "README.md"
 

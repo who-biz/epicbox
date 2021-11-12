@@ -1,9 +1,9 @@
 mod close_reason;
-mod grinbox_publisher;
-mod grinbox_subscriber;
-mod grinbox_subscription_handler;
+mod epicbox_publisher;
+mod epicbox_subscriber;
+mod epicbox_subscription_handler;
 
 pub use self::close_reason::CloseReason;
-pub use self::grinbox_publisher::GrinboxPublisher;
-pub use self::grinbox_subscriber::GrinboxSubscriber;
-pub use self::grinbox_subscription_handler::GrinboxSubscriptionHandler;
+pub use self::epicbox_publisher::EpicboxPublisher;
+pub use self::epicbox_subscriber::EpicboxSubscriber;
+pub use self::epicbox_subscription_handler::EpicboxSubscriptionHandler;

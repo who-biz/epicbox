@@ -1,5 +1,5 @@
 use failure::Fail;
-use crate::types::GrinboxError;
+use crate::types::EpicboxError;
 
 #[derive(Clone, Eq, PartialEq, Debug, Fail)]
 pub enum ErrorKind {
@@ -19,16 +19,16 @@ pub enum ErrorKind {
     InvalidBase58Key,
     #[fail(display = "\x1b[31;1merror:\x1b[0m could not parse number from string!")]
     NumberParsingError,
-    #[fail(display = "\x1b[31;1merror:\x1b[0m could not parse `{}` to a grinbox address!", 0)]
-    GrinboxAddressParsingError(String),
+    #[fail(display = "\x1b[31;1merror:\x1b[0m could not parse `{}` to a epicbox address!", 0)]
+    EpicboxAddressParsingError(String),
     #[fail(display = "\x1b[31;1merror:\x1b[0m unable to encrypt message")]
     Encryption,
     #[fail(display = "\x1b[31;1merror:\x1b[0m unable to decrypt message")]
     Decryption,
     #[fail(display = "\x1b[31;1merror:\x1b[0m unable to verify proof")]
     VerifyProof,
-    #[fail(display = "\x1b[31;1merror:\x1b[0m grinbox websocket terminated unexpectedly!")]
-    GrinboxWebsocketAbnormalTermination,
-    #[fail(display = "\x1b[31;1merror:\x1b[0m grinbox protocol error `{}`", 0)]
-    GrinboxProtocolError(GrinboxError),
+    #[fail(display = "\x1b[31;1merror:\x1b[0m epicbox websocket terminated unexpectedly!")]
+    EpicboxWebsocketAbnormalTermination,
+    #[fail(display = "\x1b[31;1merror:\x1b[0m epicbox protocol error `{}`", 0)]
+    EpicboxProtocolError(EpicboxError),
 }
