@@ -24,5 +24,5 @@ ws = { version="0.7", features=["ssl"] }
 
 grin_secp256k1zkp = { version = "0.7.4", features = ["bullet-proof-sizing"]}
 
-epic_core     = { git = "https://github.com/EpicCash/epic", branch = "3.0.0" }
-epic_wallet_libwallet = { git = "https://github.com/EpicCash/epic-wallet" , branch = "3.0.0" }
+epic_core     = { git = "https://github.com/EpicCash/epic", branch = "master" }
+epic_wallet_libwallet = { git = "https://github.com/EpicCash/epic-wallet" , branch = "master" }
