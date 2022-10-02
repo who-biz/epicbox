@@ -67,6 +67,11 @@ fn main() {
     let sender = broker.start().expect("failed initiating broker session");
     let response_handlers_sender = AsyncServer::init();
 
+
+    debug!("epicbox_domain###### {}", epicbox_domain);
+    debug!("epicbox_port###### {}", epicbox_port);
+    debug!("epicbox_protocol_unsecure###### {}", epicbox_protocol_unsecure);
+
     ws::Builder::new()
         .build(|out| {
             AsyncServer::new(
