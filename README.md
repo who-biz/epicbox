@@ -27,9 +27,6 @@ Assuming Alice wants to send Bob 50 epic using the relay:
 * Written in Rust, Epicbox utilizes websockets to communicate with relay users.
 * Relay server federation is supported, allowing you to run your own Epicbox server and be accessible as `publickey@yourdomain.com`.
 
-## Getting started
-
-* Epicbox is integrated with [wallet713](https://github.com/vault713/wallet713). Get a epicbox address to receive and send transactions that are end-to-end encrypted by [installing the latest version](https://wallet.713.mw/install).
 
 ## Integration instructions
 
