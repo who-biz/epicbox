@@ -15,9 +15,12 @@ if rust is already installed, you can simply update version with rustup update
 
 * A running instance of [rabbitmq](https://www.rabbitmq.com/)
 
+* RabbitMQ Plugin stomp (https://www.rabbitmq.com/stomp.html) [rabbitmq](https://www.rabbitmq.com/)
+
 ### Environment Variables
 
-* `BROKER_URI`: The rabbitmq broker URI in the form of (i.e. domain:port). defaults to 127.0.0.1:5672
+* `BROKER_URI`: The rabbitmq broker URI in the form of (i.e. domain:port). defaults to 127.0.0.1:5672, watch your rabbitmq log for the stomp plugin and port started STOMP TCP listener on [::]:61613
+
 * `RABBITMQ_DEFAULT_USER`: The username with which epicbox would establish connection to the rabbit broker.
 * `RABBITMQ_DEFAULT_PASS`: The associated password to use
 * `BIND_ADDRESS`: The http listener bind address (defaults to 0.0.0.0:3420)
