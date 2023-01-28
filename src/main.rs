@@ -32,7 +32,6 @@ use std::net::ToSocketAddrs;
 fn main() {
     env_logger::init();
 
-    info!("hello, world!");
 
     let broker_uri = std::env::var("BROKER_URI")
         .unwrap_or_else(|_| "127.0.0.1:61613".to_string())
@@ -44,7 +43,7 @@ fn main() {
     let password = std::env::var("BROKER_PASSWORD").unwrap_or("guest".to_string());
 
     let epicbox_domain = std::env::var("EPICBOX_DOMAIN").unwrap_or("127.0.0.1".to_string());
-    let epicbox_port = std::env::var("EPICBOX_PORT").unwrap_or("13420".to_string());
+    let epicbox_port = std::env::var("EPICBOX_PORT").unwrap_or("443".to_string());
     let epicbox_port = u16::from_str_radix(&epicbox_port, 10).expect("invalid EPICBOX_PORT given!");
     let epicbox_protocol_unsecure = std::env::var("EPICBOX_PROTOCOL_UNSECURE")
         .map(|_| true)
@@ -58,7 +57,7 @@ fn main() {
     let broker_uri = broker_uri.unwrap();
 
     let bind_address =
-        std::env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:13420".to_string());
+        std::env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3423".to_string());
 
     info!("Broker URI: {}", broker_uri);
     info!("Bind address: {}", bind_address);
@@ -67,10 +66,6 @@ fn main() {
     let sender = broker.start().expect("failed initiating broker session");
     let response_handlers_sender = AsyncServer::init();
 
-
-    debug!("epicbox_domain###### {}", epicbox_domain);
-    debug!("epicbox_port###### {}", epicbox_port);
-    debug!("epicbox_protocol_unsecure###### {}", epicbox_protocol_unsecure);
 
     ws::Builder::new()
         .build(|out| {

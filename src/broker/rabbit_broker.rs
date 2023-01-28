@@ -210,6 +210,8 @@ impl BrokerSession {
                     reply_to
                 )
             )
+            .with(Header::new(HeaderName::from_str("durable"),"true"))
+            .with(Header::new(HeaderName::from_str("persistent"), "true"))
             .send();
     }
 
