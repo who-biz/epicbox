@@ -81,6 +81,10 @@ impl EpicboxAddress {
         let captures = captures.unwrap();
         let public_key = captures.name("public_key").unwrap().as_str().to_string();
         let domain = captures.name("domain").map(|m| m.as_str().to_string());
+	info!(">>> domain({:?})",domain);
+        /*if domain.is_none() {
+            Err(ErrorKind::EpicboxAddressParsingError(s.to_string()))?;
+        }*/
         let port = captures
             .name("port")
             .map(|m| u16::from_str_radix(m.as_str(), 10).unwrap());

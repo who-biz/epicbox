@@ -261,6 +261,8 @@ impl AsyncServer {
         }
         let to_address = to_address.unwrap();
 
+	info!(">>> to_address.domain({}), to_address.port({})",to_address.domain,to_address.port);
+
         let mut challenge = String::new();
         challenge.push_str(&str);
 
@@ -308,21 +310,30 @@ impl AsyncServer {
     }
 
     fn post_slate_federated(&self, from_address: &EpicboxAddress, to_address: &EpicboxAddress, str: String, signature: String, message_expiration_in_seconds: Option<u32>) -> EpicboxResponse {
+
+	let mut object: serde_json::Value = serde_json::from_str(&str).unwrap();
+	info!(" >>>> to argument ({}), str argument({:?})",to_address,object);
+	let domain = object["destination"]["domain"].as_str().unwrap();
+	info!(" >>>> domain from json ({:?})", domain);
+
         let url = match self.epicbox_protocol_unsecure {
             false => format!(
                 "wss://{}:{}",
-                to_address.domain,
+                domain,
                 to_address.port
             ),
             true => format!(
                 "ws://{}:{}",
-                to_address.domain,
+                domain,
                 to_address.port
             )
         };
 
         let str = str.clone();
         let signature = signature.clone();
+
+	info!(">>> to_address.domain({}), to_address.port({})",to_address.domain,to_address.port);
+
         let result = connect(url, move |sender| {
             let str = str.clone();
             let signature = signature.clone();
@@ -401,8 +412,8 @@ impl Handler for AsyncServer {
         let request = serde_json::from_str(&msg.to_string());
 
         let response = if request.is_ok() {
-            let request = request.unwrap();
-            info!("[{}] -> {}", self.id.bright_green(), request);
+        	let request = request.unwrap();
+        	info!("[{}] -> {}", self.id.bright_green(), request);
             match request {
                 EpicboxRequest::Challenge => self.get_challenge(),
                 EpicboxRequest::Subscribe { address, signature } => {
@@ -414,7 +425,13 @@ impl Handler for AsyncServer {
                     str,
                     signature,
                     message_expiration_in_seconds,
-                } => self.post_slate(from, to, str, signature, message_expiration_in_seconds),
+                } => {
+			let mut object: serde_json::Value = serde_json::from_str(&str).unwrap();
+		    	info!(" >>>> to argument ({}), str argument({:?})",to,object);
+			let dest = object["destination"]["domain"].as_str();
+			info!(" >>>> domain from json ({:?})", dest);
+		    	self.post_slate(from, to, str, signature, message_expiration_in_seconds)
+		},
                 EpicboxRequest::Unsubscribe { address } => self.unsubscribe(address),
             }
         } else {
