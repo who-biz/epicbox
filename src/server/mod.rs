@@ -351,6 +351,11 @@ impl AsyncServer {
                             message_expiration_in_seconds,
                         };
 
+			let mut object: serde_json::Value = serde_json::from_str(&str.clone()).unwrap();
+		    	info!(" >>>> to argument ({})\nstr argument({:?})\nfrom({})\nsignature({})",to_address.stripped(),object,from_address.stripped(),signature);
+			let dest = object["destination"]["domain"].as_str();
+			info!(" >>>> domain from json ({:?})", dest);
+
                         sender
                             .send(serde_json::to_string(&request).unwrap())
                             .unwrap();
@@ -427,7 +432,7 @@ impl Handler for AsyncServer {
                     message_expiration_in_seconds,
                 } => {
 			let mut object: serde_json::Value = serde_json::from_str(&str).unwrap();
-		    	info!(" >>>> to argument ({}), str argument({:?})",to,object);
+		    	info!(" >>>> to argument ({}), str argument({:?}), from arg({})",to,object,from);
 			let dest = object["destination"]["domain"].as_str();
 			info!(" >>>> domain from json ({:?})", dest);
 		    	self.post_slate(from, to, str, signature, message_expiration_in_seconds)
